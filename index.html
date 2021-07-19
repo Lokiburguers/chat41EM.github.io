@@ -1,67 +1,85 @@
 <!DOCTYPE html>
 <html>
-<!---EL GATOCODER SIGUE MI CANAL EN YOUTUBE PARA PROGRAMAS Y CODIGOS canal de youtube: Tegar Dev   ----->
-<head>
+  <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
-    <title>Comentarios</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.3.1/css/bootstrap.min.css">
-    <link rel="stylesheet" href="assets/css/styles.css">
-</head>
- 
-<body>
-    <header></header>
-    <nav class="navbar navbar-light navbar-expand-md">
-        <div class="container-fluid"><a class="navbar-brand" href="#">El Gato Coder</a><button data-toggle="collapse" class="navbar-toggler" data-target="#navcol-1"><span class="sr-only">Toggle navigation</span><span class="navbar-toggler-icon"></span></button>
-            <div class="collapse navbar-collapse"
-                id="navcol-1">
-                <ul class="nav navbar-nav">
-                    <li class="nav-item" role="presentation"><a class="nav-link active" href="https://www.youtube.com/channel/UCKqkc2QNHUvxsxCW1ptFNkQ">Youtube</a></li>
-                    <li class="nav-item" role="presentation"><a class="nav-link" href="#">Facebook</a></li>
-                    <li class="nav-item" role="presentation"><a class="nav-link" href="#">Instagram</a></li>
-                </ul>
-            </div>
-        </div>
-    </nav>
- 
- 
-        <div class="container">
- 
- 
- 
-    <div class="col-md-6 pane">
-  <div class="col-md-4">
-			<div class="alert alert-light"><h4>Comentarios</h4></div>
-			</div>
-			<div id="result">
- 
- 
- 
- 
-		</div>
- 
-    <div class="col-md-8">
-        <form>
-            <div class="form-group">
-			<label>Nombre</label>
-			<input class="form-control" type="text"  id="name">
-			</div>
-            <div class="form-group">
-			<label>Comentario</label>
-			<textarea id="comment" class="form-control"></textarea></label>
-			</div>
-			<button type="button" class="btn btn-primary" onclick="commentBox();">Enviar</button>
-        </form>
-    </div>
- 
- 
- 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.3.1/js/bootstrap.bundle.min.js"></script>
- 
-	<script src="assets/js/script.js"></script>
-	</div>
-	</div>
-</body>
- 
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Autenticación</title>
+    <link rel="stylesheet" href="estilos.css">
+
+   <!-- Carga el núcleo de Firebase JS SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.3.1/firebase-app.js"></script>
+    <!-- Agrega el manejo de autenticación. -->
+    <script src="https://www.gstatic.com/firebasejs/8.3.1/firebase-auth.js">
+    </script>
+<!-- Agrego la base de datos con firestore. -->
+    <script
+	    src="https://www.gstatic.com/firebasejs/8.3.1/firestore-auth.js">
+    </script>
+    <script
+src="js/init.js"></script>
+  </head>
+  <body>
+    <h1>Autenticación</h1>
+    <h1>Sesión</h1>
+    <fieldset>
+      <legend>Email</legend>
+      <output id="email"><progress max="100">Cargando…</progress></output>
+    </fieldset>
+    <fieldset>
+      <legend>Nombre</legend>
+      <output id="nombre"></output>
+    </fieldset>
+    <figure><img id="avatar" alt="Avatar"></figure>
+    <button type="button" onclick="terminaSesión()">Terminar Sesión</button>
+    <footer>Copyright &copy; 2021 Ricardo Armando Machorro Reyes.</footer>
+    <script>
+      //@ts-check
+      /** Conexión al sistema de autenticación de Firebase. */
+      // @ts-ignore
+      const auth = firebase.auth();
+      /** Tipo de autenticación de usuarios. En este caso es con Google. */
+      // @ts-ignore
+      const provider = new firebase.auth.GoogleAuthProvider();
+      /* Configura el proveedor de Google para que permita seleccionar de una
+       * lista. */
+      provider.setCustomParameters({ prompt: "select_account" });
+      /* Recibe una función que se invoca cada que hay un cambio en la
+       * autenticación y recibe el modelo con las características del usuario.*/
+      auth.onAuthStateChanged(
+        /** Recibe las características del usuario o null si no ha iniciado
+         * sesión. */
+        usuarioAuth => {
+          if (usuarioAuth && usuarioAuth.email) {
+            // Usuario aceptado.
+            // @ts-ignore Muestra el email registrado en Google.
+            email.value = usuarioAuth.email;
+            // @ts-ignore Muestra el nombre registrado en Google.
+            nombre.value = usuarioAuth.displayName;
+            // @ts-ignore Muestra el avatar registrado en Google.
+            avatar.src = usuarioAuth.photoURL;
+          } else {
+            // No ha iniciado sesión. Pide datos para iniciar sesión.
+            auth.signInWithRedirect(provider);
+          }
+        },
+        // Función que se invoca si hay un error al verificar el usuario.
+        procesaError
+      );
+      /** Termina la sesión. */
+      async function terminaSesión() {
+        try {
+          await auth.signOut();
+        } catch (e) {
+          procesaError(e);
+        }
+      }
+      /** Procesa un error. Muestra el objeto en la consola y un cuadro de
+       * alerta con el mensaje.
+       * @param {Error} e descripción del error. */
+      function procesaError(e) {
+        console.log(e);
+        alert(e.message);
+      }
+    </script>
+  </body>
 </html>
